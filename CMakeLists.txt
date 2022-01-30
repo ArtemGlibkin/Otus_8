@@ -30,6 +30,7 @@ target_include_directories(async
 )
 
 target_link_libraries(async_ex PRIVATE async)
+target_link_libraries(async Threads::Threads)
 
 if(MSVC)
 	target_compile_options(async_ex PRIVATE /MT)
