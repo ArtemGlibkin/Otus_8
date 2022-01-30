@@ -1,0 +1,25 @@
+#include "CommandReader.h"
+
+
+class LibInitializer
+{
+	std::vector<CommandReader> mCommandReaders;
+	std::vector<std::thread> mOutThreads;
+	AtomicBlockQueue blockQueue;
+	
+	LibInitializer()
+	{
+		mOutThreads.reserve(3);
+		mOutThreads.at(0) = std::move(std::thread(&FileWrite, std::ref(blockQueue)));
+		mOutThreads.at(1) =  std::move(std::thread(&FileWrite, std::ref(blockQueue)));
+		mOutThreads.at(0).detach();
+		mOutThreads.at(1).detach();
+	}
+	
+	
+}
+CommandReader connect(int block_size)
+{
+	static LibInitializer libInitializer;
+	CommandReader reader(block_size);
+}
