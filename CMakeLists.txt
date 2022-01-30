@@ -21,7 +21,7 @@ set_target_properties(libasync  PROPERTIES
 
 find_package(Threads REQUIRED)
 
-target_include_directories(libasync
+target_include_directories(async
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
@@ -29,7 +29,7 @@ target_include_directories(libasync
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(libasync PRIVATE libasync)
+target_link_libraries(async PRIVATE libasync)
 
 if(MSVC)
 	target_compile_options(libasync PRIVATE /MT)
