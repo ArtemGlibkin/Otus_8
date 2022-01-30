@@ -11,28 +11,28 @@ project(async  VERSION ${PROJECT_VESRION})
 
 configure_file(include/version.h.in include/version.h)
 
-add_executable(async src/main.cpp)
-add_library(libasync SHARED src/async.cpp )	
+add_executable(async_ex src/main.cpp)
+add_library(async SHARED src/async.cpp )	
 
-set_target_properties(libasync  PROPERTIES
+set_target_properties(async PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
 find_package(Threads REQUIRED)
 
+target_include_directories(async_ex
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 target_include_directories(async
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_include_directories(libasync
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
-target_link_libraries(async PRIVATE libasync)
+target_link_libraries(async_ex PRIVATE async)
 
 if(MSVC)
-	target_compile_options(libasync PRIVATE /MT)
+	target_compile_options(async_ex PRIVATE /MT)
 endif()
 
 install(TARGETS async RUNTIME DESTINATION bin)
