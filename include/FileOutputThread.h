@@ -1,9 +1,31 @@
 #include "AtomicBlockQueue.h"
 
-void FileWrite(AtomicQueue<CommandBlock>& queue)
+void FileOutputThreadMain(AtomicQueue<CommandBlock>& queue)
 {
 	while (true)
 	{
-		queue.pop().print();
+		try
+		{
+			queue.pop().filePrint();
+		}
+		catch(AtomicQueueResetException& e)
+		{
+			return;
+		}
+	}
+}
+
+void ScreenOutputThreadMain(AtomicQueue<CommandBlock>& queue)
+{
+	while (true)
+	{
+		try
+		{
+			queue.pop().displayPrint();
+		}
+		catch(AtomicQueueResetException& e)
+		{
+			return;
+		}
 	}
 }

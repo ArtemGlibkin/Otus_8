@@ -10,22 +10,28 @@ class LibInitializer
 public:
 	std::vector<std::unique_ptr<CommandReader>> mCommandReaders;
 	std::vector<std::thread> mOutThreads;
-	AtomicQueue<CommandBlock> blockQueue;
+	AtomicQueue<CommandBlock> mFileOutputQueue;
+	AtomicQueue<CommandBlock> mScreenOutputQueue;
 	int mContextCounter = 0;
+private:
+	void outputThreadsStop()
+	{
+		mFileOutputQueue.reset();
+		mScreenOutputQueue.reset();
+	}
 public:
 	LibInitializer()
 	{
 		mCommandReaders.reserve(5);
 		mOutThreads.reserve(3);
-		mOutThreads.push_back(std::thread(&FileWrite, std::ref(blockQueue)));
-		mOutThreads.push_back(std::thread(&FileWrite, std::ref(blockQueue)));
-		mOutThreads.at(0).detach();
-		mOutThreads.at(1).detach();
+		mOutThreads.push_back(std::thread(&FileOutputThreadMain, std::ref(mFileOutputQueue)));
+		mOutThreads.push_back(std::thread(&FileOutputThreadMain, std::ref(mFileOutputQueue)));
+		mOutThreads.push_back(std::thread(&ScreenOutputThreadMain, std::ref(mScreenOutputQueue)));
 	}
 
 	int addNewReader(int blockSize)
 	{
-		mCommandReaders.push_back(std::make_unique<CommandReader>(blockQueue, blockSize));
+		mCommandReaders.push_back(std::make_unique<CommandReader>(mFileOutputQueue, mScreenOutputQueue, blockSize));
 		return mContextCounter++;
 	}
 
@@ -50,12 +56,20 @@ public:
 	void stop()
 	{
 		/*
-			Проверяем, если все ридеры закончили свою работу, то ждем потоки вывода
+			пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		*/
 		for (auto & it : mCommandReaders)
 			if (it) return;
 
-		while (blockQueue.size() != 0);
+		while (mFileOutputQueue.size() != 0);
+		outputThreadsStop();
+	}
+
+	~LibInitializer()
+	{
+		stop();
+		for(auto & it : mOutThreads)
+			it.join();
 	}
 };
 

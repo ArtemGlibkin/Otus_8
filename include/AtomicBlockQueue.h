@@ -6,6 +6,16 @@
 #include <iostream>
 #include <condition_variable>
 
+
+class AtomicQueueResetException : public std::exception
+{
+public:
+	AtomicQueueResetException()
+	{
+
+	}
+};
+
 template<typename T>
 class AtomicQueue
 {
@@ -26,7 +36,7 @@ public:
 		std::unique_lock<std::mutex> lock(mtx);
 		cv.wait(lock, [&] {return !mQueue.empty() || mStop; });
 		if (mStop)
-			throw std::runtime_error("end session");
+			throw AtomicQueueResetException();
 		T block = mQueue.front();
 		mQueue.pop();
 		return block;

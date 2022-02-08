@@ -13,7 +13,8 @@ class CommandReader
 	int dynamicBlockCounter = 0;
 	std::stringstream inputStream;
 	std::unique_ptr<CommandBlock> currientBlock;
-	AtomicQueue<CommandBlock>& mOutputQueue;
+	AtomicQueue<CommandBlock>& mFileOutputQueue;
+	AtomicQueue<CommandBlock>& mScreenOutputQueue;
 
 	bool isExit(const Command& cmd)
 	{
@@ -67,8 +68,17 @@ class CommandReader
 		block.add(input);
 		return true;
 	}
+
+	void writeBlock(CommandBlock & block)
+	{
+		mFileOutputQueue.push(*currientBlock);
+		mScreenOutputQueue.push(*currientBlock);
+	}
+
 public:
-	CommandReader(AtomicQueue<CommandBlock>& queue, int n) : blockSize(n), mOutputQueue(queue){};
+	CommandReader(AtomicQueue<CommandBlock>& fileQueue, AtomicQueue<CommandBlock>& screenQueue, int n) : blockSize(n), 
+																										 mFileOutputQueue(fileQueue), 
+																										 mScreenOutputQueue(screenQueue){};
 
 	void readBlock(std::stringstream& inputstream)
 	{
@@ -79,17 +89,18 @@ public:
 		{
 			if (!inputHandler(input, *currientBlock) || (currientBlock->size() == blockSize) && !dynamicBlock)
 			{
-				mOutputQueue.push(*currientBlock);
+				writeBlock(*currientBlock);
 				currientBlock = std::make_unique<CommandBlock>();
 			}
 		}
 	}
-	
+
 	void stop()
 	{
 		if (currientBlock)
-			mOutputQueue.push(*currientBlock);
+			writeBlock(*currientBlock);
 	}
+
 	void receive(const char * data, int size)
 	{
 		std::stringstream ss;

@@ -12,18 +12,6 @@ class CommandBlock
 	std::list<Command> cmdBlock;
 	time_t time;
 
-	void displayPrint(const std::string& out)
-	{
-		std::cout << out;
-	}
-
-	void filePrint(const std::string& out)
-	{
-		std::string fileName = "bulk" + std::to_string(time) + ".log";
-		std::ofstream file(fileName);
-		file << out << std::endl;
-	}
-
 public:
 	CommandBlock() = default;
 	void add(const Command& cmd)
@@ -37,6 +25,7 @@ public:
 	{
 		return cmdBlock.size();
 	}
+
 	std::string toString()
 	{
 		if (cmdBlock.empty())
@@ -52,10 +41,17 @@ public:
 		ss << *it << std::endl;
 		return ss.str();
 	}
-	void print()
+
+	void displayPrint()
 	{
-		std::string blockStr = toString();
-		displayPrint(blockStr);
-		filePrint(blockStr);
+		std::cout << toString();
 	}
+
+	void filePrint()
+	{
+		std::string fileName = "bulk" + std::to_string(time) + ".log";
+		std::ofstream file(fileName);
+		file <<  toString() << std::endl;
+	}
+
 };

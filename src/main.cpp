@@ -18,6 +18,8 @@ int main(int argc, char* argv[])
     receive(desc2, commands.c_str(), commands.size());
     receive(desc2, commands.c_str(), commands.size());
     disconnect(desc);
+    std::cout<<"disconnect"<<std::endl;
     disconnect(desc2);
+    std::cout<<"disconnect2"<<std::endl;
     return 0;
 }
